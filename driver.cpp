@@ -20,7 +20,7 @@ uint32_t bitwiseXOR(uint32_t n1, uint32_t n2);
 uint32_t bitwiseNot(uint32_t);
 string convertToHex(uint32_t);
 bool checkOverflow(long n1, long n2, uint32_t sum);
-void checkFlags(int& n, int& z, uint32_t);
+void checkFlags(int& n, int& z, string);
 void readFile(ifstream&, string&, long& o1, long& o2, string& s1, string& s2);
 
 int main() {
@@ -35,68 +35,94 @@ int main() {
         //read txt file
         readFile(in, command, operand1, operand2, operandString1, operandString2);
         if(command == "ADD" || command == "ADDS"){
-            //Display the operation type and the two operands
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
-            //Find sum of operands in 32-bit form
-            uint32_t sum = add(operand1, operand2);
-            //convert the sum into a string representing the hexadecimal value
-            string hexSum = convertToHex(sum);
-            //Display hexadecimal value of the sum
+            uint32_t result = add(operand1, operand2);
+            string hexSum = convertToHex(result);
             cout << hexSum << endl;
-            /*
             if(command == "ADDS"){
-                checkFlags(flagN, flagZ, result)
+                checkFlags(flagN, flagZ, hexSum);
             }
             cout << "N: " << flagN << " Z: " << flagZ << endl;
-            */
         }
         else if(command == "SUB" || command == "SUBS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = sub(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "SUBS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "AND" || command == "ANDS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = bitwiseAnd(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "ANDS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "NOT" || command == "NOTS"){
             cout << command << " " << operandString1 << ": ";
             uint32_t result = bitwiseNot(operand1);
             string hexResult = convertToHex(result);
-            cout << hexResult << endl; 
+            cout << hexResult << endl;
+            if(command == "NOTS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "ORR" || command == "ORRS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = bitwiseOr(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "ORRS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "XOR" || command == "XORS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = bitwiseXOR(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "XORS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "LSR" || command == "LSRS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = logicShiftRight(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "LSRS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "LSL" || command == "LSLS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = logicShiftLeft(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "LSLS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
         else if(command == "ASR" || command == "ASRS"){
             cout << command << " " << operandString1 << " " << operandString2 << ": ";
             uint32_t result = ArithShiftRight(operand1, operand2);
             string hexResult = convertToHex(result);
             cout << hexResult << endl;
+            if(command == "ASRS"){
+                checkFlags(flagN, flagZ, hexResult);
+            }
+            cout << "N: " << flagN << " Z: " << flagZ << endl;
         }
     }
     //Close file
@@ -108,8 +134,8 @@ int main() {
 Checks if the operation has affected flags N or Z. N is set to 1 if the result is negative
 (MSB is 1), and Z is set to 1 if the result is zero.
 */
-void checkFlags(int& n, int& z, uint32_t num){
-    int32_t signedRes = num;
+void checkFlags(int& n, int& z, string hex){
+    int32_t signedRes = stol(hex, nullptr, 16);
     if(signedRes < 0)
         n = 1;
     else 
@@ -240,27 +266,29 @@ readFile goes through the txt file for information about what command is to be d
 void readFile(ifstream& in, string& c, long& o1, long& o2, string& s1, string& s2){
     getline(in, c, ' ');
     string trash;
-    getline(in, trash, 'x');
-    if(c == "NOT"){
-        getline(in, s1);
-        s1 = "0x" + s1;
-        o1 = stol(s1, nullptr, 16);
-        return;
-    }
-    else
-    getline(in, s1, ' ');
-    if(c == "ASR" || c == "LSR" || c == "LSL"){
+    if(c == "ASR" || c == "ASRS" || c == "LSR" || c == "LSRS" || c == "LSL" || c == "LSLS"){
+        getline(in, trash, 'x');
+        getline(in, s1, ' ');
         getline(in, s2);
         s1 = "0x" + s1;
         o1 = stol(s1, nullptr, 16);
         o2 = stol(s2, nullptr, 10);
-        return;
     }
-    else
-    getline(in, trash, 'x');
-    getline(in, s2);
-    s1 = "0x" + s1;
-    s2 = "0x" + s2;
-    o1 = stol(s1, nullptr, 16);
-    o2 = stol(s2, nullptr, 16);
+    else if(c == "NOT" || c == "NOTS"){
+        getline(in, trash, 'x');
+        getline(in, s1);
+        s1 = "0x" + s1;
+        o1 = stol(s1, nullptr, 16);
+    }
+    else{
+        getline(in, trash, 'x');
+        getline(in, s1, 'x');
+        s1 = s1.substr(0, s1.length()-1);
+        getline(in, s2);
+        s1 = "0x" + s1;
+        s2 = "0x" + s2;
+        o1 = stol(s1, nullptr, 16);
+        o2 = stol(s2, nullptr, 16);
+    }
 }
+
