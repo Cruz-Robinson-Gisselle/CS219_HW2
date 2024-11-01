@@ -13,6 +13,7 @@ Each command does the following:
 ADD/ADDS - adds two operands together
 SUB/SUBS - subtracts two operands
 AND/ANDS - Performs bitwise AND with two operands
+NOT/NOTS - Performs bitwise NOT on an operand
 ORR/ORRS - Performs bitwise OR with two operands
 XOR/XORS - Performs bitwise XOR with operands
 ASR/ASRS - Performs an arithmetic shift right by n bits, MSB is maintained
